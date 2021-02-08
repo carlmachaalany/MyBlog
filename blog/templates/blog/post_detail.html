@@ -1,0 +1,50 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+  <!-- loader is the coloring class that we got from medium.com -->
+  <h1 class="posttitle loader">{{post.title}}</h1>
+  {% if post.published_date %}
+    <div class="date postdate">
+      {{post.published_date}}
+    </div>
+  {% else %}
+    <a class="btn btn-success" href="{% url 'post_publish' pk=post.pk %}">Publish</a>
+  {% endif %}
+
+  <div class='postcontent' style="border: 2px solid black; margin: 10px 0 10px 0; padding: 5px 5px; font-family: 'Russo One', sans-serif;" >{{post.text|safe|linebreaksbr}}</div>
+
+  {% if user.is_authenticated %}
+    <a class='btn btn-primary' href="{% url 'post_edit' pk=post.pk %}">
+      <span class='fas fa-edit'></span>
+    </a>
+    <a class='btn btn-primary' href="{% url 'post_remove' pk=post.pk %}">
+      <span class='fas fa-trash'></span>
+    </a>
+  {% endif %}
+
+  <hr>
+  <a class='btn btn-primary btn-comment' href="{% url 'add_comment_to_post' pk=post.pk %}">Add comment</a>
+
+  <div class="container" style="margin:40px 0 20px 0;">
+    {% for comment in post.comments.all %}
+    <br>
+      {% if user.is_authenticated or comment.approved_comment %}
+        {{comment.created_date}}
+        {% if not comment.approved_comment %}
+        <a class='btn btn-default' href="{% url 'comment_remove' pk=comment.pk %}">
+          <span class='fas fa-trash'></span>
+        </a>
+        <a class='btn btn-primary' href="{% url 'comment_approve' pk=comment.pk %}">
+          <span class='fas fa-check'></span>
+        </a>
+        {% endif %}
+        <div style='border: 1px solid grey;'>
+          <div style="padding-left: 20px; font-family: 'Montserrat', sans-serif;"><p id='comment-post'> {{ comment.text|safe|linebreaks}}</p></div>
+          <div style="padding-left: 5px;"><small>Posted By: {{comment.author}}</small><br></div>
+        </div>
+      {% endif %}
+      {% empty %}
+      <p>No Comments!</p>
+    {% endfor %}
+  </div>
+{% endblock %}
